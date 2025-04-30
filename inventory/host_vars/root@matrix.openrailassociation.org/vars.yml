@@ -1,0 +1,91 @@
+---
+# The bare domain name which represents your Matrix identity.
+# Matrix user IDs for your server will be of the form (`@alice:example.com`).
+#
+# Note: this playbook does not touch the server referenced here.
+# Installation happens on another server ("matrix.example.com", see `matrix_server_fqn_matrix`).
+#
+# If you've deployed using the wrong domain, you'll have to run the Uninstalling step,
+# because you can't change the Domain after deployment.
+matrix_domain: openrailassociation.org
+
+# The Matrix homeserver software to install.
+# See:
+#  - `roles/custom/matrix-base/defaults/main.yml` for valid options
+#  - the `docs/configuring-playbook-IMPLEMENTATION_NAME.md` documentation page, if one is available for your implementation choice
+#
+# By default, we use Synapse, because it's the only full-featured Matrix server at the moment.
+#
+# Note that the homeserver implementation of a server will not be able to be changed without data loss.
+matrix_homeserver_implementation: synapse
+
+
+# By default, the playbook manages its own Traefik (https://doc.traefik.io/traefik/) reverse-proxy server.
+# It will retrieve SSL certificates for you on-demand and forward requests to all other components.
+# For alternatives, see `docs/configuring-playbook-own-webserver.md`.
+matrix_playbook_reverse_proxy_type: playbook-managed-traefik
+
+# Controls whether container networks will be created with IPv6 support.
+#
+# If you also have IPv6 support on your server/network and AAAA DNS records pointing to the server,
+# enabling this will effectively give you full public IPv6 connectivity (powered by NAT66).
+#
+# We recommend leaving this enabled even if you don't currently have IPv6 connectivity on your server/network.
+# This way, once you eventually get IPv6 connectivity, you won't have to change anything (besides DNS records).
+#
+# Flipping this setting later on requires manual work (stopping services, deleting and recreating all container networks).
+#
+# In the future, this setting will likely default to `true`, so if you really want IPv6 disabled, explicitly set this to `false`.
+#
+# People managing Docker themselves and running an older Docker version will need additional configuration.
+#
+# Learn more in `docs/configuring-ipv6.md`.
+devture_systemd_docker_base_ipv6_enabled: true
+
+# Security
+matrix_client_element_hsts_preload_enabled: true
+password_config: true
+
+# Synapse
+matrix_synapse_admin_enabled: true
+matrix_synapse_report_stats: true
+matrix_synapse_password_config_enabled: true
+
+# Overriding values for seting up the server.
+matrix_synapse_rc_joins:
+  local:
+    per_second: 0.1
+    burst_count: 60
+  remote:
+    per_second: 0.01
+    burst_count: 10
+matrix_synapse_rc_invites:
+  per_room:
+    per_second: 0.3
+    burst_count: 50
+  per_user:
+    per_second: 0.3
+    burst_count: 50
+  per_issuer:
+    per_second: 0.3
+    burst_count: 10
+
+# #######
+# Element
+# ######
+matrix_client_element_brand: "OpenRailAssociation"
+matrix_client_element_welcome_headline: "Matrix OpenRailAssociation"
+matrix_client_element_default_theme: 'dark'
+matrix_client_element_themes_enabled: true
+matrix_client_element_default_country_code: 'GB'
+matrix_client_element_welcome_logo_link: "https://openrailassociation.org/"
+matrix_client_element_branding_welcome_background_url: "https://raw.githubusercontent.com/OpenRailAssociation/website/refs/heads/main/static/images/aerial-railway-jakub-nawrot-unsplash.jpg"
+
+# #######
+# Storage
+# #######
+matrix_synapse_ext_synapse_s3_storage_provider_enabled: true
+matrix_synapse_ext_synapse_s3_storage_provider_config_bucket: openrail-matrix-media
+matrix_synapse_ext_synapse_s3_storage_provider_config_region_name: eu-central
+matrix_synapse_ext_synapse_s3_storage_provider_config_endpoint_url: https://fsn1.your-objectstorage.com
+matrix_synapse_ext_synapse_s3_storage_provider_config_storage_class: STANDARD
