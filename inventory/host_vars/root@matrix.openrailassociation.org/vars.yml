@@ -1,4 +1,6 @@
 ---
+matrix_playbook_migration_validated_version: v2026.05.18.0
+
 # The bare domain name which represents your Matrix identity.
 # Matrix user IDs for your server will be of the form (`@alice:example.com`).
 #
